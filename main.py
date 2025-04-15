@@ -14,7 +14,7 @@
 # =============================================================================
 import sys
 from PyQt5.QtWidgets import QApplication
-from Modules.flashcard_app import FlashCardApp
+from modules.flashcard_app import FlashCardApp
 
 # =============================================================================
 #    Entry Point
