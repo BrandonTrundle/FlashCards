@@ -1,20 +1,51 @@
+# =============================================================================
+# @file    flashcard_creator.py
+# @project Flash Card App
+# @version 1.0
+# @date    15-April-2025
+# @author  Brandon Trundle
+# @brief   Flashcard creation interface.
+#          This file allows users to create flashcards by selecting or creating
+#          folders, entering topic/question/answer content, and saving them as
+#          structured text files.
+# =============================================================================
+
+# =============================================================================
+# IMPORTS
+# =============================================================================
 import os
 from PyQt5.QtWidgets import QWidget, QInputDialog, QFileDialog, QMessageBox, QPlainTextEdit, QVBoxLayout, QDialog, QPushButton, QLabel
 
+# =============================================================================
+# CLASS FlashCardCreator
+# =============================================================================
 class FlashCardCreator(QWidget):
     def __init__(self, flashcard_directory):
         super().__init__()
         self.flashcard_directory = flashcard_directory
         self.selected_folder = None
         self.flashcard_content = {"Topic": "", "Question": "", "Answer": ""}
-
+    
+    # =============================================================================
+    #    Function: start_flashcard_creation
+    #    Description: Starts the creation workflow by prompting for folder and
+    #                 entering the creation loop.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def start_flashcard_creation(self):
         # Step 1: Select or Create Folder
         self.select_or_create_folder()
 
         if self.selected_folder:
             self.create_flashcard_loop()
-
+    
+    # =============================================================================
+    #    Function: select_or_create_folder
+    #    Description: Prompts the user to select an existing folder or create a new one.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def select_or_create_folder(self):
         options = ("Select existing folder", "Create new folder")
         option, ok = QInputDialog.getItem(self, "Flashcard Folder", "Would you like to select an existing folder or create a new one?", options, 0, False)
@@ -31,7 +62,13 @@ class FlashCardCreator(QWidget):
             if not self.selected_folder:
                 QMessageBox.warning(self, "No Folder Selected", "You must select or create a folder to proceed.")
                 self.select_or_create_folder()
-
+    
+    # =============================================================================
+    #    Function: create_flashcard_loop
+    #    Description: Repeats the input-review-save flow for creating flashcards.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def create_flashcard_loop(self):
         while True:
             # Step 2: Prompt for Topic, Question, Answer
@@ -56,7 +93,14 @@ class FlashCardCreator(QWidget):
                                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if switch_folder_choice == QMessageBox.Yes:
                 self.select_or_create_folder()
-
+    
+    # =============================================================================
+    #    Function: prompt_flashcard_content
+    #    Description: Prompts the user for topic, question, and answer.
+    #    Arguments: None
+    #    Returns:
+    #        - True if user input is collected successfully, else False.
+    # =============================================================================
     def prompt_flashcard_content(self):
         # Single-line input for Topic
         topic, ok = QInputDialog.getText(self, "Topic", "Enter the topic of the flashcard:")
@@ -69,7 +113,15 @@ class FlashCardCreator(QWidget):
         self.flashcard_content["Answer"] = self.multi_line_input_dialog("Answer")
 
         return True
-
+    
+    # =============================================================================
+    #    Function: multi_line_input_dialog
+    #    Description: Custom dialog for multi-line input used for question/answer.
+    #    Arguments:
+    #        - title: Dialog title ("Question" or "Answer")
+    #    Returns:
+    #        - User-entered text from the dialog.
+    # =============================================================================
     def multi_line_input_dialog(self, title):
         dialog = QDialog(self)
         dialog.setWindowTitle(title)
@@ -103,6 +155,13 @@ class FlashCardCreator(QWidget):
             return text_edit.toPlainText()
         return ""
 
+    # =============================================================================
+    #    Function: review_flashcard
+    #    Description: Displays the card content for review and allows editing.
+    #    Arguments: None
+    #    Returns:
+    #        - True if accepted, False if canceled.
+    # =============================================================================
     def review_flashcard(self):
         review_text = "\n".join([f"{key}:\n{value}" for key, value in self.flashcard_content.items()])
         choice = QMessageBox.question(self, "Review Flashcard", f"Please review your flashcard:\n\n{review_text}",
@@ -118,6 +177,13 @@ class FlashCardCreator(QWidget):
             return self.review_flashcard()  # Review again after editing
         return True
 
+    # =============================================================================
+    #    Function: prompt_flashcard_content_part
+    #    Description: Allows the user to re-enter one part (Topic, Question, Answer).
+    #    Arguments:
+    #        - part: The section to redo ("Topic", "Question", or "Answer")
+    #    Returns: None
+    # =============================================================================
     def prompt_flashcard_content_part(self, part):
         if part in ["Question", "Answer"]:
             content = self.multi_line_input_dialog(part)
@@ -126,6 +192,12 @@ class FlashCardCreator(QWidget):
             if ok:
                 self.flashcard_content[part] = content
 
+    # =============================================================================
+    #    Function: save_flashcard
+    #    Description: Saves the entered flashcard to a file in the selected folder.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def save_flashcard(self):
         # Save the flashcard as a .txt file
         index = len([f for f in os.listdir(self.selected_folder) if f.endswith('.txt')]) + 1

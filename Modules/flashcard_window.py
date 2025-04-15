@@ -1,3 +1,17 @@
+# =============================================================================
+# @file    flashcard_window.py
+# @project Flash Card App
+# @version 1.0
+# @date    15-April-2025
+# @author  Brandon Trundle
+# @brief   Flashcard review window.
+#          This file handles displaying flashcards, flipping between question
+#          and answer, playing typing and feedback sounds, and recording results.
+# =============================================================================
+
+# =============================================================================
+# IMPORTS
+# =============================================================================
 import os
 import random
 import json
@@ -6,6 +20,9 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QCheckBox
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPixmap
 
+# =============================================================================
+# CLASS DEFINITIONS
+# =============================================================================
 class FlashCardWindow(QWidget):
     def __init__(self, flashcard_files, is_random, json_path="flashcard_results.json", typing_speed=50, sound_enabled=True):
         super().__init__()
@@ -43,6 +60,12 @@ class FlashCardWindow(QWidget):
 
         self.initUI()
 
+    # =============================================================================
+    #    Function: initUI
+    #    Description: Initializes the flashcard UI layout and widgets.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def initUI(self):
         # Set the window title with the topic and file name
         if self.current_file:
@@ -104,7 +127,14 @@ class FlashCardWindow(QWidget):
         # Show the topic and question initially
         self.show_topic()
         self.type_text(self.question)
-
+    
+    # =============================================================================
+    #    Function: load_flashcard
+    #    Description: Loads a flashcard file and extracts topic, question, answer.
+    #    Arguments:
+    #        - filepath: Path to the flashcard text file.
+    #    Returns: None
+    # =============================================================================
     def load_flashcard(self, filepath):
         try:
             with open(filepath, "r") as file:
@@ -144,10 +174,23 @@ class FlashCardWindow(QWidget):
             self.topic = "Error loading topic."
             self.question = "Error loading question."
             self.answer = "Error loading answer."
-
+   
+    # =============================================================================
+    #    Function: show_topic
+    #    Description: Displays the topic label in the flashcard window.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def show_topic(self):
         self.topic_label.setText(f"Topic: {self.topic}")
-
+    
+    # =============================================================================
+    #    Function: type_text
+    #    Description: Simulates typing animation with sound for displaying text.
+    #    Arguments:
+    #        - text: The text to type out.
+    #    Returns: None
+    # =============================================================================
     def type_text(self, text):
         # Disable the "Next Card" button while typing is in progress
         self.next_button.setEnabled(False)
@@ -168,22 +211,47 @@ class FlashCardWindow(QWidget):
 
         update_text()  # Start the typing process
 
+    # =============================================================================
+    #    Function: show_question
+    #    Description: Displays the question content.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def show_question(self):
         self.type_text(self.question)
         self.showing_answer = False
         self.right_checkbox.setChecked(False)
         self.wrong_checkbox.setChecked(False)
 
+    # =============================================================================
+    #    Function: show_answer
+    #    Description: Displays the answer content.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def show_answer(self):
         self.type_text(self.answer)
         self.showing_answer = True
-
+   
+    # =============================================================================
+    #    Function: flip_card
+    #    Description: Flips between showing the question and answer.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def flip_card(self):
         if self.showing_answer:
             self.show_question()
         else:
             self.show_answer()
-
+    
+    # =============================================================================
+    #    Function: mark_correct
+    #    Description: Marks the current flashcard as answered correctly.
+    #    Arguments:
+    #        - state: The state of the checkbox (Qt.Checked/Unchecked)
+    #    Returns: None
+    # =============================================================================
     def mark_correct(self, state):
         if state == Qt.Checked:
             self.wrong_checkbox.setChecked(False)
@@ -192,7 +260,14 @@ class FlashCardWindow(QWidget):
             if self.sound_enabled:
                 print("Right sound should play now")  # Debugging statement
                 self.right_sound.play()
-
+    
+    # =============================================================================
+    #    Function: mark_incorrect
+    #    Description: Marks the current flashcard as answered incorrectly.
+    #    Arguments:
+    #        - state: The state of the checkbox (Qt.Checked/Unchecked)
+    #    Returns: None
+    # =============================================================================
     def mark_incorrect(self, state):
         if state == Qt.Checked:
             self.right_checkbox.setChecked(False)
@@ -201,7 +276,13 @@ class FlashCardWindow(QWidget):
             if self.sound_enabled:
                 print("Wrong sound should play now")  # Debugging statement
                 self.wrong_sound.play()
-
+    
+    # =============================================================================
+    #    Function: next_flashcard
+    #    Description: Advances to the next flashcard and loads its content.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def next_flashcard(self):
         # Prevent loading the next card if typing is still happening
         if self.is_typing:
@@ -232,6 +313,12 @@ class FlashCardWindow(QWidget):
         self.show_topic()
         self.type_text(self.question)
 
+    # =============================================================================
+    #    Function: load_or_create_json
+    #    Description: Loads or initializes the JSON file for tracking results.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def load_or_create_json(self):
         # Load existing results from the JSON file or create a new one
         if os.path.exists(self.json_path):
@@ -239,7 +326,13 @@ class FlashCardWindow(QWidget):
                 self.results = json.load(file)
         else:
             self.results = {"flashcards": {}}
-
+    
+    # =============================================================================
+    #    Function: save_json
+    #    Description: Saves the current flashcard results to the JSON file.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def save_json(self):
         # Save the current results to the JSON file
         with open(self.json_path, "w") as file:

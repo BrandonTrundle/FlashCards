@@ -1,9 +1,28 @@
+# =============================================================================
+# @file    flashcard_app.py
+# @project Flash Card App
+# @version 1.0
+# @date    15-April-2025
+# @author  Brandon Trundle
+# @brief   Main application window for flashcard system.
+#          This file initializes the start menu GUI for selecting flashcard
+#          folders, setting review modes, clearing results, adjusting settings,
+#          and launching the flashcard and flashcard creator modules.
+# =============================================================================
+
+
+# =============================================================================
+# IMPORTS
+# =============================================================================
 import os
 import json
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton, QComboBox, QRadioButton, QButtonGroup, QHBoxLayout, QMenuBar, QAction, QFileDialog, QMessageBox, QInputDialog
 from .flashcard_window import FlashCardWindow
 from .flashcard_creator import FlashCardCreator  # Import the new FlashCardCreator module
 
+# =============================================================================
+# CLASS: FlashCardApp
+# =============================================================================
 class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functionality
     def __init__(self):
         super().__init__()
@@ -15,9 +34,14 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
         self.json_path = "flashcard_results.json"
         self.typing_speed = 50  # Default typing speed (characters per second)
         self.sound_enabled = True  # Default sound setting
-
-        self.initUI()
-
+        self.initUI() 
+    
+    # =============================================================================
+    #    Function: initUI
+    #    Description: Initializes the main user interface for the flashcard app.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def initUI(self):
         self.setWindowTitle("Flashcard - Start Menu")
         self.setGeometry(100, 100, 400, 150)
@@ -104,6 +128,13 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
         self.start_button.clicked.connect(self.start_flashcards)
         layout.addWidget(self.start_button)
 
+    # =============================================================================
+    #    Function: clear_results
+    #    Description: Clears saved correctness data from the result JSON for the
+    #                 selected flashcard folder.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def clear_results(self):
         """Clear results from the JSON file based on the selected category."""
         if not self.selected_folder:
@@ -139,10 +170,26 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
         else:
             QMessageBox.information(self, "No Results Found", "No results file found to clear.")
     
+    # =============================================================================
+    #    Function: create_flashcards
+    #    Description: Launches the FlashCardCreator interface.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def create_flashcards(self):
+        if not self.flashcard_directory:
+            QMessageBox.warning(self, "No Directory Selected", "Please select a flashcard directory first.")
+            return
+
         flashcard_creator = FlashCardCreator(self.flashcard_directory)
         flashcard_creator.start_flashcard_creation()
 
+    # =============================================================================
+    #    Function: select_flashcard_directory
+    #    Description: Opens a file dialog for the user to select the flashcard directory.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def select_flashcard_directory(self):
         # Open a dialog to select the flashcard directory
         dir_path = QFileDialog.getExistingDirectory(self, "Select Flashcard Directory")
@@ -151,6 +198,13 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
             print(f"Selected Flashcard Directory: {self.flashcard_directory}")
             self.load_folders(self.flashcard_directory)
 
+    # =============================================================================
+    #    Function: load_folders
+    #    Description: Populates the folder combo box with subdirectories from the selected directory.
+    #    Arguments:
+    #        - flashcard_folder: Path to the selected flashcard directory.
+    #    Returns: None
+    # =============================================================================
     def load_folders(self, flashcard_folder):
         # Load available folders into the combo box
         self.folder_combo.clear()  # Clear the combo box before adding items
@@ -162,6 +216,12 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
         else:
             print(f"Path does not exist: {flashcard_folder}")
 
+    # =============================================================================
+    #    Function: update_flashcard_count
+    #    Description: Displays the count of flashcards in the selected folder.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def update_flashcard_count(self):
         # Update the label showing the number of flashcards in the selected folder
         if self.flashcard_directory:
@@ -174,6 +234,12 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
             else:
                 self.flashcard_count_label.setText("Number of Flashcards: 0")
 
+    # =============================================================================
+    #    Function: adjust_typing_speed
+    #    Description: Allows the user to adjust the typing animation speed.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def adjust_typing_speed(self):
         # Open an input dialog to adjust the typing speed
         speed, ok = QInputDialog.getInt(self, "Adjust Typing Speed", "Enter characters per second:", self.typing_speed, 10, 200, 1)
@@ -181,6 +247,12 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
             self.typing_speed = speed
             print(f"Typing speed adjusted to: {self.typing_speed} characters per second")
 
+    # =============================================================================
+    #    Function: toggle_sound
+    #    Description: Toggles sound effects for flashcard interactions.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def toggle_sound(self):
         # Toggle sound on or off
         self.sound_enabled = not self.sound_enabled
@@ -189,6 +261,12 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
         else:
             self.toggle_sound_action.setText("Enable Sounds")
 
+    # =============================================================================
+    #    Function: start_flashcards
+    #    Description: Begins the flashcard session based on the selected mode.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def start_flashcards(self):
         # Check if the flashcard directory has been selected
         if not self.flashcard_directory:
@@ -212,6 +290,12 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
         else:
             QMessageBox.warning(self, "No Folder Selected", "Please select a folder within the directory to continue.")
 
+    # =============================================================================
+    #    Function: load_incorrect_flashcards
+    #    Description: Loads only flashcards marked incorrect from previous sessions.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def load_incorrect_flashcards(self):
         # Load incorrect flashcards based on the JSON file
         if os.path.exists(self.json_path):
@@ -229,6 +313,14 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
         else:
             QMessageBox.information(self, "No Results Found", "No previous flashcard results found.")
 
+    # =============================================================================
+    #    Function: get_flashcard_files
+    #    Description: Collects and returns a list of .txt flashcard files from the given folder.
+    #    Arguments:
+    #        - folder: Directory path containing flashcard text files.
+    #    Returns:
+    #        - List of valid flashcard file paths.
+    # =============================================================================
     def get_flashcard_files(self, folder=None):
         while True:
             if not folder:
@@ -252,7 +344,14 @@ class FlashCardApp(QMainWindow):  # Inherit from QMainWindow for menu bar functi
             else:
                 return flashcard_files
 
+    # =============================================================================
+    #    Function: open_flashcard_window
+    #    Description: Initializes and shows the FlashCardWindow for reviewing flashcards.
+    #    Arguments: None
+    #    Returns: None
+    # =============================================================================
     def open_flashcard_window(self):
         # Create a new flashcard window
         self.flashcard_window = FlashCardWindow(self.flashcard_files, self.is_random, typing_speed=self.typing_speed, sound_enabled=self.sound_enabled)
         self.flashcard_window.show()
+

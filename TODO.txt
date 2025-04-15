@@ -1,9 +1,0 @@
-FIX FILE SELECTION
-Current: If you select a folder that isn't structured properly, and try to do things in the program, it will crash.
-
-Temp fix:
-Make sure to create a folder named Flash Cards.  Create sub folders inside of this folder.
-
-
-LOCK THE SIZE OF THE MENU GUI AND THE SIZE OF THE NOTECARD
-FIX THE ABILITY OF THE USER TO INIFINITELY CLICK BUTTONS. IT BREAKS THE PROGRAM LOL
